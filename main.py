@@ -9,14 +9,19 @@ import os
 # Intenta leer desde las variables de entorno de la nube o locales
 api_key = os.environ.get("GEMINI_API_KEY")
 
-# Si no la encuentra ahí (para desarrollo local rápido en tu PC), usa el secreto de Streamlit
-if not api_key and "GEMINI_API_KEY" in st.secrets:
-    api_key = st.secrets["GEMINI_API_KEY"]
+# Evita el quiebre si st.secrets no está configurado en tu PC local
+if not api_key:
+    try:
+        if "GEMINI_API_KEY" in st.secrets:
+            api_key = st.secrets["GEMINI_API_KEY"]
+    except Exception:
+        pass
 
 if api_key:
     genai.configure(api_key=api_key)
 else:
-    st.error("Falta la configuración de la API Key de Gemini. Verifica tus variables de entorno.")
+    # Muestra advertencia en local en vez de romper la consola con un crash
+    st.warning("Falta la configuración de la API Key de Gemini. En producción, asegúrate de añadirla en Settings > Secrets.")
 
 # Inyección de estilos CSS para mantener tu paleta de colores morados en la Web/PWA
 st.markdown(f"""
@@ -74,7 +79,11 @@ if st.button("Optimizar mi Día"):
     if not texto_usuario.strip():
         st.error("Por favor, escribe tus tareas primero.")
     else:
-        hora_actual = datetime.now().strftime("%H:%M")
+        import pytz
+
+        # Configurar la zona horaria de Chile
+        zona_chile = pytz.timezone("America/Santiago")
+        hora_actual = datetime.now(zona_chile).strftime("%H:%M")
 
         prompt = f"""
         Eres un planificador de tareas inmediato. El usuario te dará una lista de actividades y la hora actual.
@@ -130,6 +139,5 @@ if st.button("Optimizar mi Día"):
                                 f'<div class="{clase_celda}">{texto}</div>', 
                                 unsafe_allow_html=True
                             )
-                            
         except Exception as e:
             st.error(f"Error al conectar con la IA: {e}")
