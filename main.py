@@ -2,6 +2,7 @@ import streamlit as st
 import google.generativeai as genai
 from datetime import datetime
 import os
+import pytz  # Movido al inicio para corregir el entorno en la nube
 
 # =====================================================================
 # CONFIGURACIÓN DE LA API DE GEMINI (Oculta de forma segura)
@@ -65,9 +66,10 @@ st.markdown(f"""
 # =====================================================================
 st.title("¿Que tareas tienes?")
 
-# Textbox de entrada de texto
+# Textbox de entrada de texto corregido para accesibilidad
 texto_usuario = st.text_area(
-    label="", 
+    label="Entrada de tareas", 
+    label_visibility="collapsed",
     placeholder="Escribe aquí todo lo que tienes que hacer hoy de forma desordenada...",
     height=120
 )
@@ -79,8 +81,6 @@ if st.button("Optimizar mi Día"):
     if not texto_usuario.strip():
         st.error("Por favor, escribe tus tareas primero.")
     else:
-        import pytz
-
         # Configurar la zona horaria de Chile
         zona_chile = pytz.timezone("America/Santiago")
         hora_actual = datetime.now(zona_chile).strftime("%H:%M")
@@ -141,3 +141,4 @@ if st.button("Optimizar mi Día"):
                             )
         except Exception as e:
             st.error(f"Error al conectar con la IA: {e}")
+
