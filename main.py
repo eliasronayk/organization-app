@@ -65,7 +65,7 @@ st.markdown(f"""
 # CONFIGURACIÓN DE LA INTERFAZ GRÁFICA (Estructura original)
 # =====================================================================
 st.title("¿Que tareas tienes?")
-
+st.write(f"Hora actual detectada en el servidor: {datetime.now(pytz.timezone('America/Santiago')).strftime('%H:%M')}")
 # Textbox de entrada de texto corregido para accesibilidad
 texto_usuario = st.text_area(
     label="Entrada de tareas", 
